@@ -47,19 +47,19 @@ jobs:
       id: latest_release
       run: |
         response=$(curl --silent "https://api.github.com/repos/${{ env.ORIGINAL_OWNER }}/${{ env.ORIGINAL_REPOSITORY }}/releases/latest")
-        echo "tag_name=$(echo $response | jq -r .tag_name)" >> $GITHUB_ENV
-        echo "body=$(echo $response | jq -r .body)" >> $GITHUB_ENV
-        echo "assets_url=$(echo $response | jq -r .assets_url)" >> $GITHUB_ENV
+        if [[ "$response" == *"Not Found"* ]]; then
+          echo "No release found in the upstream repository. Skipping release creation."
+          echo "skip=true" >> $GITHUB_ENV
+        else
+          echo "tag_name=$(echo $response | jq -r .tag_name)" >> $GITHUB_ENV
+          echo "body=$(echo $response | jq -r .body)" >> $GITHUB_ENV
+          echo "assets_url=$(echo $response | jq -r .assets_url)" >> $GITHUB_ENV
+        fi
 
     - name: Check if release exists and is new
       id: check_release
       run: |
-        if [[ -z "${{ env.tag_name }}" ]]; then
-          echo "No release found in the upstream repository. Skipping release creation."
-          echo "skip=true" >> $GITHUB_ENV
-        else
-          echo "获取到的tag是：${{ env.tag_name }}"
-          echo "Release found in the upstream repository. Checking if it's new."
+        if [[ "${{ env.skip }}" == 'false' ]]; then
           curl -f --silent "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.tag_name }}" > /dev/null
           if [[ "$?" -ne 0 ]]; then
             echo "New release found. Proceeding with release creation."

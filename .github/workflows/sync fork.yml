@@ -72,7 +72,7 @@ jobs:
           echo "步骤5：开始检查本地仓库中是否存在该发布版本。"
           for i in {1..10}
           do
-            response=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.tag_name }}")
+            response=$(curl --silent --max-time 30 "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.tag_name }}")
             echo "这里得到的状态码是" $response
             status_code=$(echo $response | jq -r '.status_code')
             if [[ "$status_code" == '404' ]]; then
@@ -84,8 +84,8 @@ jobs:
               echo "skip=true" >> $GITHUB_ENV
               break
             else
-              echo "步骤8：请求失败，状态码为 $status_code。等待 5 秒后重试。"
-              sleep 5
+              echo "步骤8：请求失败，状态码为 $status_code。等待 10 秒后重试。"
+              sleep 10
             fi
           done
         fi

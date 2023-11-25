@@ -8,6 +8,8 @@ env:
 
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types: [1]
 
 jobs:
   sync:

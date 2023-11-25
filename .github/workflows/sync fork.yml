@@ -7,9 +7,9 @@ env:
   MY_BRANCH: main
 
 on:
-  push:
-  branches:
-    - my #指定运行分支
+  # push:
+  # branches:
+  #   - my #指定运行分支
   # schedule:
   #   - cron:  '0 0 * * *'  # 每天凌晨运行
   workflow_dispatch: #手工运行

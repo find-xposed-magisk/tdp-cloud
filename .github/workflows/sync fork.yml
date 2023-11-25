@@ -52,7 +52,7 @@ jobs:
           echo "skip=true" >> $GITHUB_ENV
         else
           echo "tag_name=$(echo $response | jq -r .tag_name)" >> $GITHUB_ENV
-          echo "body=$(echo $response | jq -r .body)" >> $GITHUB_ENV
+          echo "body=$(echo $response | jq -r @json .body)" >> $GITHUB_ENV
           echo "assets_url=$(echo $response | jq -r .assets_url)" >> $GITHUB_ENV
         fi
 

@@ -57,6 +57,7 @@ jobs:
           echo "No release found in the upstream repository. Skipping release creation."
           echo "::set-output name=skip::true"
         else
+          echo "获取到的tag是：${{ steps.latest_release.outputs.tag_name }}"
           echo "Release found in the upstream repository. Checking if it's new."
           curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.latest_release.outputs.tag_name }}" > /dev/null
           if [[ "$?" -ne 0 ]]; then

@@ -49,8 +49,27 @@ jobs:
         owner: ${{ env.ORIGINAL_OWNER }}
         repo: ${{ env.ORIGINAL_REPOSITORY }}
 
+    - name: Check if release exists and is new
+      id: check_release
+      run: |
+        if [[ -z "${{ steps.latest_release.outputs.tag_name }}" ]]; then
+          echo "No release found in the upstream repository. Skipping release creation."
+          echo "::set-output name=skip::true"
+        else
+          echo "Release found in the upstream repository. Checking if it's new."
+          curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.latest_release.outputs.tag_name }}" > /dev/null
+          if [[ "$?" -ne 0 ]]; then
+            echo "New release found. Proceeding with release creation."
+            echo "::set-output name=skip::false"
+          else
+            echo "Release already exists in the local repository. Skipping release creation."
+            echo "::set-output name=skip::true"
+          fi
+        fi
+
     - name: Create Release
       id: create_release
+      if: steps.check_release.outputs.skip == 'false'
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.MYGITHUB_TOKEN }}

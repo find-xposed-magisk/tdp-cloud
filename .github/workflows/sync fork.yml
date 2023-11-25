@@ -27,7 +27,7 @@ jobs:
       run: |
         git remote add upstream https://github.com/${{ env.ORIGINAL_OWNER }}/${{ env.ORIGINAL_REPOSITORY }}.git
         git fetch upstream
-        git checkout -b ${{ env.MY_BRANCH }} ${{ env.ORIGINAL_OWNER }}/${{ env.ORIGINAL_REPOSITORY }}/${{ env.UPSTREAM_BRANCH }}
+        git checkout -b ${{ env.MY_BRANCH }} upstream/${{ env.UPSTREAM_BRANCH }}
         git merge upstream/${{ env.UPSTREAM_BRANCH }}
   
 

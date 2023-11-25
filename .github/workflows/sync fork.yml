@@ -74,7 +74,8 @@ jobs:
           do
             response=$(curl --silent --max-time 30 "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.tag_name }}")
             echo "这里得到的状态码是" $response
-            status_code=$(echo $response | jq -r '.status_code')
+            echo "作废代码=status_code=$(echo $response | jq -r '.status_code')"
+            status_code=$(curl -I -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.tag_name }}")
             if [[ "$status_code" == '404' ]]; then
               echo "步骤6：在本地仓库中未找到该发布版本。继续创建新发布。"
               echo "skip=false" >> $GITHUB_ENV

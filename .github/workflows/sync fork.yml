@@ -43,30 +43,30 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y jq gh
     
-        - name: Get Latest Release
-        id: latest_release
-        run: |
-          response=$(curl --silent "https://api.github.com/repos/${{ env.ORIGINAL_OWNER }}/${{ env.ORIGINAL_REPOSITORY }}/releases/latest")
-          if [[ "$response" == *"Not Found"* ]]; then
-            echo "步骤1：在上游仓库中未找到发布版本。跳过创建新发布。"
+    - name: Get Latest Release
+      id: latest_release
+      run: |
+        response=$(curl --silent "https://api.github.com/repos/${{ env.ORIGINAL_OWNER }}/${{ env.ORIGINAL_REPOSITORY }}/releases/latest")
+        if [[ "$response" == *"Not Found"* ]]; then
+          echo "步骤1：在上游仓库中未找到发布版本。跳过创建新发布。"
+          echo "skip=true" >> $GITHUB_ENV
+        else
+          echo "步骤2：在上游仓库中找到了发布版本。"
+          echo "tag_name=$(echo $response | jq -r .tag_name)" >> $GITHUB_ENV
+          echo "tag_name is: ${{ env.tag_name }}"
+          echo "body=$(echo $response | jq -r '.body')" >> $GITHUB_ENV
+          echo "body is: ${{ env.body }}"
+          echo "assets_url=$(echo $response | jq -r .assets_url)" >> $GITHUB_ENV
+          echo "assets_url is: ${{ env.assets_url }}"
+          echo "assets_count=$(echo $response | jq -r '.assets | length')" >> $GITHUB_ENV
+          if [[ "${{ env.assets_count }}" == '0' ]]; then
+            echo "步骤3：在上游仓库的发布版本中未找到资源。跳过创建新发布。"
             echo "skip=true" >> $GITHUB_ENV
           else
-            echo "步骤2：在上游仓库中找到了发布版本。"
-            echo "tag_name=$(echo $response | jq -r .tag_name)" >> $GITHUB_ENV
-            echo "tag_name is: ${{ env.tag_name }}"
-            echo "body=$(echo $response | jq -r '.body')" >> $GITHUB_ENV
-            echo "body is: ${{ env.body }}"
-            echo "assets_url=$(echo $response | jq -r .assets_url)" >> $GITHUB_ENV
-            echo "assets_url is: ${{ env.assets_url }}"
-            echo "assets_count=$(echo $response | jq -r '.assets | length')" >> $GITHUB_ENV
-            if [[ "${{ env.assets_count }}" == '0' ]]; then
-              echo "步骤3：在上游仓库的发布版本中未找到资源。跳过创建新发布。"
-              echo "skip=true" >> $GITHUB_ENV
-            else
-              echo "步骤4：在上游仓库的发布版本中找到了资源。"
-              echo "skip=false" >> $GITHUB_ENV
-            fi
+            echo "步骤4：在上游仓库的发布版本中找到了资源。"
+            echo "skip=false" >> $GITHUB_ENV
           fi
+        fi
       
 
     - name: Check if release exists and is new

@@ -1,10 +1,10 @@
 name: Sync Fork
 
 env:
-  ORIGINAL_OWNER: your_original_owner
-  ORIGINAL_REPOSITORY: your_original_repository
-  UPSTREAM_BRANCH: upstream_branch
-  MY_BRANCH: my_branch
+  ORIGINAL_OWNER: opentdp
+  ORIGINAL_REPOSITORY: tdp-cloud
+  UPSTREAM_BRANCH: main
+  MY_BRANCH: main
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
     - name: Push Changes
       uses: ad-m/github-push-action@master
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.MYGITHUB_TOKEN }}
         branch: ${{ github.ref }}
 
   release:
@@ -51,7 +51,7 @@ jobs:
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.MYGITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.latest_release.outputs.tag_name }}
         release_name: Release ${{ steps.latest_release.outputs.tag_name }}

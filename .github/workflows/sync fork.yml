@@ -56,24 +56,24 @@ jobs:
         echo "::set-output name=body::$(echo $response | jq -r .body)"
         echo "::set-output name=assets_url::$(echo $response | jq -r .assets_url)"
 
-        - name: Check if release exists and is new
-        id: check_release
-        run: |
-          if [[ -z "${{ steps.latest_release.outputs.tag_name }}" ]]; then
-            echo "No release found in the upstream repository. Skipping release creation."
-            echo "::set-output name=skip::true"
+    - name: Check if release exists and is new
+      id: check_release
+      run: |
+        if [[ -z "${{ steps.latest_release.outputs.tag_name }}" ]]; then
+          echo "No release found in the upstream repository. Skipping release creation."
+          echo "::set-output name=skip::true"
+        else
+          echo "获取到的tag是：${{ steps.latest_release.outputs.tag_name }}"
+          echo "Release found in the upstream repository. Checking if it's new."
+          curl -f --silent "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.latest_release.outputs.tag_name }}" > /dev/null
+          if [[ "$?" -ne 0 ]]; then
+            echo "New release found. Proceeding with release creation."
+            echo "::set-output name=skip::false"
           else
-            echo "获取到的tag是：${{ steps.latest_release.outputs.tag_name }}"
-            echo "Release found in the upstream repository. Checking if it's new."
-            curl -f --silent "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.latest_release.outputs.tag_name }}" > /dev/null
-            if [[ "$?" -ne 0 ]]; then
-              echo "New release found. Proceeding with release creation."
-              echo "::set-output name=skip::false"
-            else
-              echo "Release already exists in the local repository. Skipping release creation."
-              echo "::set-output name=skip::true"
-            fi
+            echo "Release already exists in the local repository. Skipping release creation."
+            echo "::set-output name=skip::true"
           fi
+        fi
       
 
     - name: Create Release

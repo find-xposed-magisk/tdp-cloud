@@ -56,7 +56,7 @@ jobs:
           echo "tag_name=$tag_name" >> $GITHUB_ENV
           echo "tag_name is: $tag_name"
           body=$(echo $response | jq -r '.body')
-          echo "body=$body" >> $GITHUB_ENV
+          printf 'body=%q\n' "$body" >> $GITHUB_ENV
           echo "body is: $body"
           assets_url=$(echo $response | jq -r .assets_url)
           echo "assets_url=$assets_url" >> $GITHUB_ENV
@@ -72,6 +72,7 @@ jobs:
             echo "skip=false" >> $GITHUB_ENV
           fi
         fi
+  
 
       
 

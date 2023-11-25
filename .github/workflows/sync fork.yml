@@ -52,11 +52,19 @@ jobs:
           echo "skip=true" >> $GITHUB_ENV
         else
           echo "步骤2：在上游仓库中找到了发布版本。"
-          echo "tag_name=$(echo $response | jq -r .tag_name)" >> $GITHUB_ENV
-          echo "body=$(echo $response | jq -r '.body')" >> $GITHUB_ENV
-          echo "assets_url=$(echo $response | jq -r .assets_url)" >> $GITHUB_ENV
-          echo "assets_count=$(echo $response | jq -r '.assets | length')" >> $GITHUB_ENV
-          if [[ "${{ env.assets_count }}" == '0' ]]; then
+          tag_name=$(echo $response | jq -r .tag_name)
+          echo "tag_name=$tag_name" >> $GITHUB_ENV
+          echo "tag_name is: $tag_name"
+          body=$(echo $response | jq -r '.body')
+          echo "body=$body" >> $GITHUB_ENV
+          echo "body is: $body"
+          assets_url=$(echo $response | jq -r .assets_url)
+          echo "assets_url=$assets_url" >> $GITHUB_ENV
+          echo "assets_url is: $assets_url"
+          assets_count=$(echo $response | jq -r '.assets | length')
+          echo "assets_count=$assets_count" >> $GITHUB_ENV
+          echo "assets_count is: $assets_count"
+          if [[ "$assets_count" == '0' ]]; then
             echo "步骤3：在上游仓库的发布版本中未找到资源。跳过创建新发布。"
             echo "skip=true" >> $GITHUB_ENV
           else
@@ -64,6 +72,7 @@ jobs:
             echo "skip=false" >> $GITHUB_ENV
           fi
         fi
+
       
 
     - name: Check if release exists and is new

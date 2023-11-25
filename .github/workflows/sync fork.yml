@@ -48,16 +48,20 @@ jobs:
       run: |
         response=$(curl --silent "https://api.github.com/repos/${{ env.ORIGINAL_OWNER }}/${{ env.ORIGINAL_REPOSITORY }}/releases/latest")
         if [[ "$response" == *"Not Found"* ]]; then
-          echo "在上游仓库中未找到发布版本。跳过创建新发布。"
+          echo "步骤1：在上游仓库中未找到发布版本。跳过创建新发布。"
           echo "skip=true" >> $GITHUB_ENV
         else
+          echo "步骤2：在上游仓库中找到了发布版本。"
           echo "tag_name=$(echo $response | jq -r .tag_name)" >> $GITHUB_ENV
           echo "body=$(echo $response | jq -r @json .body)" >> $GITHUB_ENV
           echo "assets_url=$(echo $response | jq -r .assets_url)" >> $GITHUB_ENV
           echo "assets_count=$(echo $response | jq -r '.assets | length')" >> $GITHUB_ENV
           if [[ "${{ env.assets_count }}" == '0' ]]; then
-            echo "在上游仓库的发布版本中未找到资源。跳过创建新发布。"
+            echo "步骤3：在上游仓库的发布版本中未找到资源。跳过创建新发布。"
             echo "skip=true" >> $GITHUB_ENV
+          else
+            echo "步骤4：在上游仓库的发布版本中找到了资源。"
+            echo "skip=false" >> $GITHUB_ENV
           fi
         fi
 
@@ -65,12 +69,13 @@ jobs:
       id: check_release
       run: |
         if [[ "${{ env.skip }}" == 'false' ]]; then
+          echo "步骤5：开始检查本地仓库中是否存在该发布版本。"
           response=$(curl -f --silent "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.tag_name }}" > /dev/null)
           if [[ "$?" -ne 0 ]]; then
-            echo "发现新的发布版本。继续创建新发布。"
+            echo "步骤6：在本地仓库中未找到该发布版本。继续创建新发布。"
             echo "skip=false" >> $GITHUB_ENV
           else
-            echo "在本地仓库中已存在发布版本。跳过创建新发布。"
+            echo "步骤7：在本地仓库中已存在该发布版本。跳过创建新发布。"
             echo "skip=true" >> $GITHUB_ENV
           fi
         fi
@@ -92,6 +97,7 @@ jobs:
     - name: Download and Upload Release Assets
       if: ${{ env.skip == 'false' }}
       run: |
+        echo "步骤8：开始下载和上传发布资源。"
         assets=$(curl --silent "${{ env.assets_url }}")
         asset_ids=$(echo $assets | jq -r '.[].id')
         for asset_id in $asset_ids; do

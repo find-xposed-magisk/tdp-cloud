@@ -48,7 +48,7 @@ jobs:
       run: |
         response=$(curl --silent "https://api.github.com/repos/${{ env.ORIGINAL_OWNER }}/${{ env.ORIGINAL_REPOSITORY }}/releases/latest")
         if [[ "$response" == *"Not Found"* ]]; then
-          echo "No release found in the upstream repository. Skipping release creation."
+          echo "在上游仓库中未找到发布版本。跳过创建新发布。"
           echo "skip=true" >> $GITHUB_ENV
         else
           echo "tag_name=$(echo $response | jq -r .tag_name)" >> $GITHUB_ENV
@@ -56,7 +56,7 @@ jobs:
           echo "assets_url=$(echo $response | jq -r .assets_url)" >> $GITHUB_ENV
           echo "assets_count=$(echo $response | jq -r '.assets | length')" >> $GITHUB_ENV
           if [[ "${{ env.assets_count }}" == '0' ]]; then
-            echo "No assets found in the upstream repository. Skipping release creation."
+            echo "在上游仓库的发布版本中未找到资源。跳过创建新发布。"
             echo "skip=true" >> $GITHUB_ENV
           fi
         fi
@@ -65,12 +65,12 @@ jobs:
       id: check_release
       run: |
         if [[ "${{ env.skip }}" == 'false' ]]; then
-          curl -f --silent "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.tag_name }}" > /dev/null
+          response=$(curl -f --silent "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.tag_name }}" > /dev/null)
           if [[ "$?" -ne 0 ]]; then
-            echo "New release found. Proceeding with release creation."
+            echo "发现新的发布版本。继续创建新发布。"
             echo "skip=false" >> $GITHUB_ENV
           else
-            echo "Release already exists in the local repository. Skipping release creation."
+            echo "在本地仓库中已存在发布版本。跳过创建新发布。"
             echo "skip=true" >> $GITHUB_ENV
           fi
         fi
@@ -84,7 +84,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.MYGITHUB_TOKEN }}
       with:
         tag_name: ${{ env.tag_name }}
-        release_name: Release ${{ env.tag_name }}
+        release_name: 发布 ${{ env.tag_name }}
         body: ${{ env.body }}
         draft: false
         prerelease: false

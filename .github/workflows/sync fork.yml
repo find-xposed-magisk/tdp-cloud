@@ -116,3 +116,6 @@ jobs:
           curl -LJO $asset_url
           gh release upload ${{ env.tag_name }} $asset_name --repo ${{ github.repository }}
         done
+    env:
+      GH_TOKEN: ${{ secrets.MYGITHUB_TOKEN }}
+      

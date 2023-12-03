@@ -124,7 +124,7 @@ type Script struct {
 	WorkDirectory string `gorm:"size:256"`
 	Content       string `gorm:"type:text"`
 	Timeout       uint
-	Description   string `gorm:"size:1024"`
+	Description   string `gorm:"size:2048"`
 	CreatedAt     int64
 	UpdatedAt     int64
 }

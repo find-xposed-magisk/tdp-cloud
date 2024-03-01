@@ -28,11 +28,11 @@ func workerFlag() *FlagSet {
 
 func workerExec(act string) {
 
-	c := parse.NewConfig()
-	c.Worker()
+	c := parse.WorkerConfig{}
+	c.Read()
 
 	if act == "" || act == "start" {
-		c.WriteYaml()
+		c.Save()
 	}
 
 	service.Control("worker", act)

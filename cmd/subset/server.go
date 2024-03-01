@@ -28,11 +28,11 @@ func serverFlag() *FlagSet {
 
 func serverExec(act string) {
 
-	c := parse.NewConfig()
-	c.Server()
+	c := &parse.ServerConfig{}
+	c.Read()
 
 	if act == "" || act == "start" {
-		c.WriteYaml()
+		c.Save()
 	}
 
 	service.Control("server", act)
